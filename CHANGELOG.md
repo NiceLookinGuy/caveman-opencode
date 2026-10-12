@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+- Replaced the Claude-coupled compression transport (Anthropic SDK / `claude` CLI) with a provider-agnostic one: direct OpenAI-compatible HTTP via `CAVEMAN_API_KEY`, `CAVEMAN_MODEL`, and optional `CAVEMAN_BASE_URL`, or `opencode run` inheriting any provider configured in opencode.
+- Added timeouts for LLM calls (300s HTTP, 600s subprocess) and API-key-safe error messages.
+- Documented the fork and the provider-agnostic transport in the README and skill docs.
+
 ## Unreleased
 
 - Documented global default activation after install.

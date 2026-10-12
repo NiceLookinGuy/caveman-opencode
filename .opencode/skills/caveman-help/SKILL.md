@@ -40,19 +40,17 @@ Say "stop caveman" or "normal mode". Resume anytime with `/caveman`.
 
 Default mode = `full`. Change it:
 
-**Environment variable** (highest priority):
+**Install-time environment variable** (sets default in installed `AGENTS.caveman.md`):
 ```bash
-export CAVEMAN_DEFAULT_MODE=ultra
+CAVEMAN_OPENCODE_DEFAULT_LEVEL=ultra ./install-opencode.sh
 ```
 
-**Config file** (`~/.config/caveman/config.json`):
-```json
-{ "defaultMode": "lite" }
+**Session-only** (no persistence):
+```bash
+/caveman ultra
 ```
 
-Set `"off"` to disable auto-activation on session start. User can still activate manually with `/caveman`.
-
-Resolution: env var > config file > `full`.
+To change the installed default afterwards, edit `Default mode:` in `~/.config/opencode/AGENTS.caveman.md` or re-run the installer with `CAVEMAN_OPENCODE_DEFAULT_LEVEL` set.
 
 ## More
 

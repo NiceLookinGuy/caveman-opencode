@@ -33,6 +33,8 @@ It gives OpenCode a small set of commands and skills for terse, high-signal AI r
 
 This repo is not the full upstream multi-agent Caveman repository. It is a focused OpenCode distribution.
 
+> **Fork note:** This repository is a fork of [anthonystepvoy/caveman-opencode](https://github.com/anthonystepvoy/caveman-opencode) with the remaining Claude Code coupling removed so it works with any model or provider. `caveman-compress` no longer hardcodes the Anthropic SDK or the `claude` CLI: it calls either a direct OpenAI-compatible endpoint (`CAVEMAN_API_KEY`, `CAVEMAN_MODEL`, optional `CAVEMAN_BASE_URL`) or `opencode run`, which inherits whatever provider and auth opencode itself is configured with.
+
 ## Why use it?
 
 AI agents often spend too many tokens on filler, hedging, and long explanations. Caveman mode keeps technical substance but removes excess wording.

@@ -1,7 +1,7 @@
 ---
 name: caveman-compress
 description: >
-  Compress natural language memory files (CLAUDE.md, todos, preferences) into caveman format
+  Compress natural language memory files (AGENTS.md, todos, preferences) into caveman format
   to save input tokens. Preserves all technical substance, code, URLs, and structure.
   Compressed version overwrites the original file. Human-readable backup saved as FILE.original.md.
   Trigger: /caveman-compress <filepath> or "compress memory file"
@@ -11,11 +11,21 @@ description: >
 
 ## Purpose
 
-Compress natural language files (CLAUDE.md, todos, preferences) into caveman-speak to reduce input tokens. Compressed version overwrites original. Human-readable backup saved as `<filename>.original.md`.
+Compress natural language files (AGENTS.md, todos, preferences) into caveman-speak to reduce input tokens. Compressed version overwrites original. Human-readable backup saved as `<filename>.original.md`. Works with any model or provider — no vendor lock-in.
 
 ## Trigger
 
 `/caveman-compress <filepath>` or when user asks to compress a memory file.
+
+## Model configuration
+
+The compression script calls an LLM. Transport selection:
+
+1. If `CAVEMAN_API_KEY` is set: direct OpenAI-compatible API call (stdlib only). Configure with:
+   - `CAVEMAN_API_KEY` — API key
+   - `CAVEMAN_MODEL` — bare model ID (e.g. `gpt-4o-mini`); required in this mode
+   - `CAVEMAN_BASE_URL` — optional, defaults to `https://api.openai.com/v1`; point at Anthropic's compatibility endpoint, OpenRouter, Groq, Ollama, LM Studio, vLLM, or any OpenAI-compatible gateway
+2. Otherwise: `opencode run` — inherits the provider, model, and auth already configured in opencode (any provider opencode supports, including OAuth/managed connections). `CAVEMAN_MODEL` may optionally override the model in `provider/model` form.
 
 ## Process
 
@@ -27,9 +37,9 @@ cd caveman-compress && python3 -m scripts <absolute_filepath>
 
 3. The CLI will:
 - detect file type (no tokens)
-- call Claude to compress
+- call the configured model to compress
 - validate output (no tokens)
-- if errors: cherry-pick fix with Claude (targeted fixes only, no recompression)
+- if errors: cherry-pick fix with the configured model (targeted fixes only, no recompression)
 - retry up to 2 times
 - if still failing after 2 retries: report error to user, leave original file untouched
 

@@ -6,9 +6,12 @@ Usage:
     python scripts/compress.py <filepath>
 """
 
+import json
 import os
 import re
 import subprocess
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import List
 
@@ -17,7 +20,7 @@ OUTER_FENCE_REGEX = re.compile(
 )
 
 # Filenames and paths that almost certainly hold secrets or PII. Compressing
-# them ships raw bytes to the Anthropic API — a third-party data boundary that
+# them ships raw bytes to a third-party LLM provider — a data boundary that
 # developers on sensitive codebases cannot cross. detect.py already skips .env
 # by extension, but credentials.md / secrets.txt / ~/.aws/credentials would
 # slip through the natural-language filter. This is a hard refuse before read.
@@ -69,36 +72,122 @@ from .validate import validate
 MAX_RETRIES = 2
 
 
-# ---------- Claude Calls ----------
+HTTP_TIMEOUT_SECONDS = 300
+SUBPROCESS_TIMEOUT_SECONDS = 600
 
 
-def call_claude(prompt: str) -> str:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if api_key:
-        try:
-            import anthropic
+# ---------- LLM Calls ----------
+#
+# Transport selection (first match wins):
+#   1. CAVEMAN_API_KEY set: direct OpenAI-compatible POST /chat/completions
+#      (stdlib only, no SDK). Works with OpenAI, Anthropic's compatibility
+#      endpoint, OpenRouter, Groq, Mistral, DeepSeek, Ollama, LM Studio,
+#      vLLM, or any OpenAI-compatible gateway via CAVEMAN_BASE_URL.
+#   2. Otherwise: `opencode run` — inherits whatever provider, model, and
+#      auth (API key, OAuth, or managed connection) the user configured in
+#      opencode.
+#
+# CAVEMAN_MODEL applies to both transports: bare model ID for direct HTTP
+# (e.g. "gpt-4o-mini"), provider/model form when forwarding to opencode
+# (e.g. "openai/gpt-4o-mini").
 
-            client = anthropic.Anthropic(api_key=api_key)
-            msg = client.messages.create(
-                model=os.environ.get("CAVEMAN_MODEL", "claude-sonnet-4-5"),
-                max_tokens=8192,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            return strip_llm_wrapper(msg.content[0].text.strip())
-        except ImportError:
-            pass  # anthropic not installed, fall back to CLI
-    # Fallback: use claude CLI (handles desktop auth)
+
+def call_llm(prompt: str) -> str:
+    if os.environ.get("CAVEMAN_API_KEY"):
+        return _post_chat_completions(prompt)
+    return _run_opencode(prompt)
+
+
+def _post_chat_completions(prompt: str) -> str:
+    model = os.environ.get("CAVEMAN_MODEL")
+    if not model:
+        raise RuntimeError(
+            "CAVEMAN_API_KEY is set but CAVEMAN_MODEL is not. "
+            "Set CAVEMAN_MODEL (e.g. gpt-4o-mini) or unset CAVEMAN_API_KEY "
+            "to fall back to 'opencode run'."
+        )
+    base_url = os.environ.get("CAVEMAN_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+    payload = json.dumps(
+        {
+            "model": model,
+            "max_tokens": 8192,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        f"{base_url}/chat/completions",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {os.environ['CAVEMAN_API_KEY']}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:500]
+        raise RuntimeError(f"LLM API error (HTTP {e.code}) from {base_url}:\n{detail}") from e
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"LLM API unreachable at {base_url}: {e.reason}") from e
+    try:
+        content = body["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError) as e:
+        raise RuntimeError(f"Unexpected LLM API response shape from {base_url}") from e
+    if not isinstance(content, str) or not content.strip():
+        raise RuntimeError("LLM API returned an empty response")
+    return strip_llm_wrapper(content.strip())
+
+
+def _run_opencode(prompt: str) -> str:
+    command = ["opencode", "run", "--format", "json"]
+    model = os.environ.get("CAVEMAN_MODEL")
+    if model:
+        command += ["--model", model]
     try:
         result = subprocess.run(
-            ["claude", "--print"],
+            command,
             input=prompt,
             text=True,
             capture_output=True,
             check=True,
+            timeout=SUBPROCESS_TIMEOUT_SECONDS,
         )
-        return strip_llm_wrapper(result.stdout.strip())
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError(
+            f"opencode run timed out after {SUBPROCESS_TIMEOUT_SECONDS}s"
+        ) from e
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Claude call failed:\n{e.stderr}")
+        raise RuntimeError(f"opencode run failed:\n{e.stderr}") from e
+    except FileNotFoundError as e:
+        raise RuntimeError(
+            "opencode CLI not found on PATH and CAVEMAN_API_KEY is not set. "
+            "Install opencode or set CAVEMAN_API_KEY (+ CAVEMAN_MODEL, "
+            "optionally CAVEMAN_BASE_URL) for direct API calls."
+        ) from e
+    return strip_llm_wrapper(_extract_opencode_text(result.stdout))
+
+
+def _extract_opencode_text(stdout: str) -> str:
+    """Collect text parts from `opencode run --format json` ndjson events."""
+    chunks = []
+    for line in stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if event.get("type") == "text":
+            text = event.get("part", {}).get("text", "")
+            if text:
+                chunks.append(text)
+    output = "\n".join(chunks).strip()
+    if not output:
+        raise RuntimeError("opencode run produced no text output")
+    return output
 
 
 def build_compress_prompt(original: str) -> str:
@@ -162,14 +251,15 @@ def compress_file(filepath: Path) -> bool:
         raise ValueError(f"File too large to compress safely (max 500KB): {filepath}")
 
     # Refuse files that look like they contain secrets or PII. Compressing ships
-    # the raw bytes to the Anthropic API — a third-party boundary — so we fail
-    # loudly rather than silently exfiltrate credentials or keys. Override is
-    # intentional: the user must rename the file if the heuristic is wrong.
+    # the raw bytes to the configured LLM provider — a third-party boundary — so
+    # we fail loudly rather than silently exfiltrate credentials or keys.
+    # Override is intentional: the user must rename the file if the heuristic
+    # is wrong.
     if is_sensitive_path(filepath):
         raise ValueError(
             f"Refusing to compress {filepath}: filename looks sensitive "
             "(credentials, keys, secrets, or known private paths). "
-            "Compression sends file contents to the Anthropic API. "
+            "Compression sends file contents to the configured LLM provider. "
             "Rename the file if this is a false positive."
         )
 
@@ -190,8 +280,8 @@ def compress_file(filepath: Path) -> bool:
         return False
 
     # Step 1: Compress
-    print("Compressing with Claude...")
-    compressed = call_claude(build_compress_prompt(original_text))
+    print("Compressing with configured LLM...")
+    compressed = call_llm(build_compress_prompt(original_text))
 
     # Save original as backup, write compressed to original path
     backup_path.write_text(original_text)
@@ -218,8 +308,8 @@ def compress_file(filepath: Path) -> bool:
             print("❌ Failed after retries — original restored")
             return False
 
-        print("Fixing with Claude...")
-        compressed = call_claude(
+        print("Fixing with LLM...")
+        compressed = call_llm(
             build_fix_prompt(original_text, compressed, result.errors)
         )
         filepath.write_text(compressed)
