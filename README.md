@@ -4,10 +4,10 @@
 
 ### Terse AI responses, slash commands, and token-saving skills for OpenCode
 
-[![GitHub stars](https://img.shields.io/github/stars/anthonystepvoy/caveman-opencode?style=social)](https://github.com/anthonystepvoy/caveman-opencode/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/anthonystepvoy/caveman-opencode?style=social)](https://github.com/anthonystepvoy/caveman-opencode/fork)
-[![MIT License](https://img.shields.io/github/license/anthonystepvoy/caveman-opencode)](LICENSE)
-[![Issues](https://img.shields.io/github/issues/anthonystepvoy/caveman-opencode)](https://github.com/anthonystepvoy/caveman-opencode/issues)
+[![GitHub stars](https://img.shields.io/github/stars/NiceLookinGuy/caveman-opencode?style=social)](https://github.com/NiceLookinGuy/caveman-opencode/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/NiceLookinGuy/caveman-opencode?style=social)](https://github.com/NiceLookinGuy/caveman-opencode/fork)
+[![MIT License](https://img.shields.io/github/license/NiceLookinGuy/caveman-opencode)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/NiceLookinGuy/caveman-opencode)](https://github.com/NiceLookinGuy/caveman-opencode/issues)
 
 **why use many token when few do trick**
 
@@ -56,19 +56,19 @@ One-line install:
 Windows:
 
 ```powershell
-irm https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.ps1 | iex
+irm https://raw.githubusercontent.com/NiceLookinGuy/caveman-opencode/main/install-opencode.ps1 | iex
 ```
 
 macOS/Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.sh | sh
+curl -fsSL https://raw.githubusercontent.com/NiceLookinGuy/caveman-opencode/main/install-opencode.sh | sh
 ```
 
 Or clone this repo:
 
 ```bash
-git clone https://github.com/anthonystepvoy/caveman-opencode.git
+git clone https://github.com/NiceLookinGuy/caveman-opencode.git
 cd caveman-opencode
 ```
 
@@ -94,13 +94,13 @@ To install with `ultra` as the default intensity:
 Windows:
 
 ```powershell
-$env:CAVEMAN_OPENCODE_DEFAULT_LEVEL = "ultra"; irm https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.ps1 | iex
+$env:CAVEMAN_OPENCODE_DEFAULT_LEVEL = "ultra"; irm https://raw.githubusercontent.com/NiceLookinGuy/caveman-opencode/main/install-opencode.ps1 | iex
 ```
 
 macOS/Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.sh | CAVEMAN_OPENCODE_DEFAULT_LEVEL=ultra sh
+curl -fsSL https://raw.githubusercontent.com/NiceLookinGuy/caveman-opencode/main/install-opencode.sh | CAVEMAN_OPENCODE_DEFAULT_LEVEL=ultra sh
 ```
 
 ## Validate
@@ -176,7 +176,7 @@ The repo includes `opencode.json` for local testing. If you open OpenCode inside
 Windows:
 
 ```powershell
-irm https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/uninstall-opencode.ps1 | iex
+irm https://raw.githubusercontent.com/NiceLookinGuy/caveman-opencode/main/uninstall-opencode.ps1 | iex
 ```
 
 or, from a clone:
@@ -188,7 +188,7 @@ powershell -ExecutionPolicy Bypass -File .\uninstall-opencode.ps1
 macOS/Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/uninstall-opencode.sh | sh
+curl -fsSL https://raw.githubusercontent.com/NiceLookinGuy/caveman-opencode/main/uninstall-opencode.sh | sh
 ```
 
 or, from a clone:
