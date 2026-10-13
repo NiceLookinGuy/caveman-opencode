@@ -1,0 +1,72 @@
+{
+  "name": "opencode-caveman-simplified",
+  "version": "1.0.0",
+  "description": "Dual-host OpenCode plugin: caveman-terse communication mode with level control (OpenCode 1 + 2).",
+  "author": "NiceLookinGuy",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./tui": {
+      "types": "./dist/tui/router.d.ts",
+      "import": "./dist/tui.js",
+      "default": "./dist/tui.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NiceLookinGuy/opencode-caveman-simplified.git"
+  },
+  "homepage": "https://github.com/NiceLookinGuy/opencode-caveman-simplified",
+  "bugs": {
+    "url": "https://github.com/NiceLookinGuy/opencode-caveman-simplified/issues"
+  },
+  "keywords": [
+    "opencode",
+    "plugin",
+    "caveman",
+    "token-efficiency"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.19.0"
+  },
+  "peerDependencies": {
+    "solid-js": ">=1.9.0",
+    "@opentui/core": ">=0.4.5",
+    "@opentui/solid": ">=0.4.5"
+  },
+  "peerDependenciesMeta": {
+    "solid-js": { "optional": true },
+    "@opentui/core": { "optional": true },
+    "@opentui/solid": { "optional": true }
+  },
+  "devDependencies": {
+    "@opencode/plugin": "2.0.22",
+    "@opentui/core": "^0.6.3",
+    "@opentui/solid": "^0.6.3",
+    "@types/bun": "^1.4.3",
+    "@types/node": "^24.13.6",
+    "esbuild": "^0.28.2",
+    "solid-js": "^1.9.17",
+    "typescript": "^7.0.2"
+  }
+}

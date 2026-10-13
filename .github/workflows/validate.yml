@@ -8,46 +8,34 @@ permissions:
   contents: read
 
 jobs:
-  package:
-    name: Package validation
+  validate:
+    name: Typecheck, build, test
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.11"
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Validate package
-        run: python scripts/validate-package.py
+      - name: Install dependencies
+        run: |
+          if [ -f bun.lock ]; then
+            bun install --frozen-lockfile
+          else
+            bun install
+            echo "::warning::bun.lock is missing; install was not frozen. Commit bun.lock for reproducible installs."
+          fi
 
-  posix-installers:
-    name: POSIX installers
-    runs-on: ubuntu-latest
+      - name: Typecheck
+        run: bun run typecheck
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      - name: Build
+        run: bun run build
 
-      - name: Test install and uninstall
-        run: sh scripts/test-installers.sh
+      - name: Test
+        run: bun run test
 
-  powershell-installers:
-    name: Windows PowerShell installers
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.11"
-
-      - name: Test install and uninstall
-        shell: powershell
-        run: .\scripts\test-installers.ps1
+      - name: Dist is reproducible against the checkout
+        run: git diff --exit-code dist

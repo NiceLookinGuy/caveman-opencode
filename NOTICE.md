@@ -1,19 +1,15 @@
 # Notice
 
-`caveman-opencode` packages OpenCode-compatible commands and skills adapted from the upstream Caveman project.
+`opencode-caveman-simplified` is a dual-host OpenCode plugin reworked from the Caveman OpenCode packaging chain.
 
-Original project:
+Fork chain:
 
-```text
-https://github.com/JuliusBrussee/caveman
-```
+1. `https://github.com/JuliusBrussee/caveman` — original Caveman concept, prompts, and compression logic.
+2. `https://github.com/anthonystepvoy/caveman-opencode` — first OpenCode packaging.
+3. `https://github.com/NiceLookinGuy/opencode-caveman-simplified` — this plugin (this repository).
 
-Upstream author:
+Original upstream author: `JuliusBrussee`.
 
-```text
-JuliusBrussee
-```
+The original Caveman project is licensed under the MIT License. This repository keeps the MIT License and preserves attribution to the upstream project and the intermediate fork.
 
-The original Caveman project is licensed under the MIT License. This repository keeps the MIT License and preserves attribution to the upstream project.
-
-This repository is focused on OpenCode packaging, installation scripts, and OpenCode-specific command/skill layout. It is not intended to replace the upstream multi-agent Caveman repository.
+This repository is not the upstream multi-agent Caveman repository. It is one focused OpenCode plugin: system-prompt injection plus a TUI level switcher.
