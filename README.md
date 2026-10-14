@@ -23,9 +23,9 @@
 
 What it is not:
 
-- No skills, no commands, no installers, no Python, no LLM compression pipeline.
+- No skills, no commands, no Python, no LLM compression pipeline.
 - No visible session messages. The model never sees a fake user turn; the injection rides in the system prompt array.
-- Not the full multi-agent Caveman repository. This is a focused dual-host OpenCode plugin.
+- Not the full multi-agent Caveman repository. This is a focused plugin that works with both OpenCode 1 and OpenCode 2.
 
 It is a rework of the `caveman-opencode` packaging chain (see [Credits](#credits)), rebuilt as a plugin for both OpenCode 1 and OpenCode 2.
 
@@ -41,7 +41,21 @@ The package ships two halves: a server plugin (`id`, `server`, `setup`) and a TU
 
 ### OpenCode 1
 
-Add the plugin spec to **both** config files. OpenCode 1 loads the server half from `opencode.json` and the TUI half from `tui.json`, so both are required to get injection and the level picker:
+Run the installer. It adds the plugin spec to both config files for you:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NiceLookinGuy/opencode-caveman-simplified/main/install-opencode.sh | sh
+```
+
+Or clone this repo and run it locally:
+
+```bash
+./install-opencode.sh
+```
+
+The script targets `${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}`, is idempotent (a re-run detects the spec and changes nothing), backs up each modified file to `<file>.bak`, and preserves comments in JSONC configs (`opencode.jsonc` or a commented `opencode.json`).
+
+**Or manually** (other platforms, Windows): add the plugin spec to **both** config files. OpenCode 1 loads the server half from `opencode.json` and the TUI half from `tui.json`, so both are required to get injection and the level picker:
 
 ```json
 // ~/.config/opencode/opencode.json
@@ -158,6 +172,7 @@ bun install
 bun run typecheck   # tsc --noEmit, TUI files included
 bun run build       # esbuild bundles + tsc declarations into dist/
 bun test            # bun test
+sh scripts/test-install.sh  # installer tests against temp config dirs
 ```
 
 Notes:
@@ -173,7 +188,7 @@ Fork chain:
 
 1. [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) — original Caveman concept, prompts, and compression logic.
 2. [anthonystepvoy/caveman-opencode](https://github.com/anthonystepvoy/caveman-opencode) — first OpenCode packaging.
-3. [NiceLookinGuy/opencode-caveman-simplified](https://github.com/NiceLookinGuy/opencode-caveman-simplified) — this dual-host plugin rework.
+3. [NiceLookinGuy/opencode-caveman-simplified](https://github.com/NiceLookinGuy/opencode-caveman-simplified) — this plugin rework, supporting OpenCode 1 and OpenCode 2.
 
 Upstream attribution is preserved in [NOTICE.md](NOTICE.md).
 

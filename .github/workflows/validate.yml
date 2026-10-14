@@ -39,3 +39,6 @@ jobs:
 
       - name: Dist is reproducible against the checkout
         run: git diff --exit-code dist
+
+      - name: Installer tests
+        run: sh scripts/test-install.sh
