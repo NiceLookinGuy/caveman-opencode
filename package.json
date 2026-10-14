@@ -1,7 +1,7 @@
 {
   "name": "opencode-caveman-simplified",
   "version": "1.0.0",
-  "description": "Dual-host OpenCode plugin: caveman-terse communication mode with level control (OpenCode 1 + 2).",
+  "description": "OpenCode plugin (OpenCode 1 and 2): terse caveman-style responses at N levels",
   "author": "NiceLookinGuy",
   "license": "MIT",
   "type": "module",

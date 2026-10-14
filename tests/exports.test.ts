@@ -21,7 +21,7 @@ describe("dist exports", () => {
     expect(existsSync(distEntry)).toBe(true);
   });
 
-  test("default export is the dual-host plugin object", async () => {
+  test("default export is the plugin object", async () => {
     const mod = (await import(distEntry.href)) as { default?: BuiltPlugin };
 
     expect(mod.default).toBeDefined();
@@ -52,7 +52,7 @@ describe("dist tui exports", () => {
     expect(existsSync(distTuiEntry)).toBe(true);
   });
 
-  test("default export is the dual-host tui module", async () => {
+  test("default export is the tui module", async () => {
     const mod = (await import(distTuiEntry.href)) as { default?: BuiltTui };
 
     expect(mod.default).toBeDefined();

@@ -1,6 +1,6 @@
 # Notice
 
-`opencode-caveman-simplified` is a dual-host OpenCode plugin reworked from the Caveman OpenCode packaging chain.
+`opencode-caveman-simplified` is an OpenCode plugin (OpenCode 1 and 2) reworked from the Caveman OpenCode packaging chain.
 
 Fork chain:
 
