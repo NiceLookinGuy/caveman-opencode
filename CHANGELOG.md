@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix OpenCode 2 Git installs: the build script is now `build:dist`, not `build`. npm's git-dependency prepare step runs a nested `npm install` for any package with a `build` script, which fails inside the compiled OpenCode binary and caused `opencode plugin add github:NiceLookinGuy/opencode-caveman-simplified` to fail with `git dep preparation failed` (anomalyco/opencode#49704). Committed `dist/` output is unchanged.
+
 ## 1.0.0
 
 - Reworked into `opencode-caveman-simplified`: one small OpenCode plugin (server half + TUI half) that works with OpenCode 1 and OpenCode 2.

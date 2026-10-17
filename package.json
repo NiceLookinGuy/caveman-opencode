@@ -42,7 +42,7 @@
     "token-efficiency"
   ],
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build:dist": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },

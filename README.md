@@ -170,7 +170,7 @@ Legacy state does not carry over. New state starts at `full` unless you set it.
 ```bash
 bun install
 bun run typecheck   # tsc --noEmit, TUI files included
-bun run build       # esbuild bundles + tsc declarations into dist/
+bun run build:dist  # esbuild bundles + tsc declarations into dist/
 bun test            # bun test
 sh scripts/test-install.sh  # installer tests against temp config dirs
 ```
@@ -178,8 +178,9 @@ sh scripts/test-install.sh  # installer tests against temp config dirs
 Notes:
 
 - `dist/` is committed. Git installs run committed output; nothing is built on the user machine.
+- The build script is `build:dist`, not `build`. npm's git-dependency prepare step runs a nested `npm install` for any package with a `build`, `prepare`, `preinstall`, `install`, `postinstall`, or `prepack` script, which fails inside the compiled OpenCode binary and breaks `opencode plugin add github:NiceLookinGuy/opencode-caveman-simplified` (anomalyco/opencode#49704). Rename it back only once that upstream issue is fixed.
 - CI (`.github/workflows/validate.yml`) runs typecheck, build, tests, then checks `git diff --exit-code dist` for reproducibility.
-- Local dev inside this repo: `opencode.json` points at `./index.js` (server half) and `tui.json` at `./tui.js` (TUI half), both root shims over `dist/`. Run `bun run build` first.
+- Local dev inside this repo: `opencode.json` points at `./index.js` (server half) and `tui.json` at `./tui.js` (TUI half), both root shims over `dist/`. Run `bun run build:dist` first.
 - TUI halves are lazy-loaded from `dist/tui.js`, so the router entry stays importable without `@opentui/*` installed.
 
 ## Credits
